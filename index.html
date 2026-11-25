@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Seth Dresbeck | AI Workflow Designer</title>
+<meta name="description" content="Seth Dresbeck builds multimodal AI workflows, voice agents, and automation systems that ship to production.">
+<meta property="og:title" content="Seth Dresbeck | AI Workflow Designer">
+<meta property="og:description" content="Multimodal AI workflows, voice agents, and automation systems, measured and in production.">
+<meta property="og:image" content="thumb.jpg">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d6f66'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='16' fill='white' text-anchor='middle'%3ESD%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: two columns. Fixed identity sidebar left; content scrolls right. Light first, dark redefines tokens. */
+:root{
+  --bg:#f6f6f3; --card:#ffffff; --ink:#15171c; --muted:#5d626c; --faint:#8a8f98; --line:#e3e3de;
+  --accent:#0d6f66; --accent-soft:rgba(13,111,102,.08); --chip:#eef0ec;
+  --display:"Schibsted Grotesk","Helvetica Neue",Arial,sans-serif; --body:"Inter",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --ease:cubic-bezier(.32,.72,0,1);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1113; --card:#16191c; --ink:#eceef0; --muted:#a2a8b1; --faint:#737a84; --line:#262a2f;
+  --accent:#5cc8bb; --accent-soft:rgba(92,200,187,.1); --chip:#1d2125; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1113; --card:#16191c; --ink:#eceef0; --muted:#a2a8b1; --faint:#737a84; --line:#262a2f;
+  --accent:#5cc8bb; --accent-soft:rgba(92,200,187,.1); --chip:#1d2125; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15.5px/1.65 var(--body)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+a{color:inherit}
+
+.layout{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:56px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.side{position:sticky;top:0;height:100vh;padding-block:88px 56px;display:flex;flex-direction:column;gap:44px}
+.side h1{margin:0;font:700 46px/1.02 var(--display);letter-spacing:-.025em}
+.side .role{margin:10px 0 0;font:500 19px/1.3 var(--display);color:var(--ink)}
+.side .pitch{margin:14px 0 0;color:var(--muted);max-width:30ch}
+.toc{display:flex;flex-direction:column;gap:2px}
+.toc a{display:flex;align-items:center;gap:14px;padding:8px 0;text-decoration:none;font:600 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint);transition:color 150ms var(--ease)}
+.toc a i{display:block;height:1px;width:32px;background:currentColor;transition:width 200ms var(--ease)}
+.toc a:hover,.toc a.on{color:var(--ink)}
+.toc a:hover i,.toc a.on i{width:64px}
+.sidefoot{margin-top:auto;display:grid;gap:6px}
+.sidefoot .contact{font:500 13px var(--mono);color:var(--muted)}
+.sidefoot .contact a{color:var(--accent);text-underline-offset:3px}
+.sidefoot .stack{font:400 12px var(--mono);color:var(--faint)}
+
+.main{padding-block:88px 96px;min-width:0}
+.sec{margin-bottom:96px;scroll-margin-top:48px}
+.mh{margin:0 0 22px;font:600 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:14px}
+.mh::after{content:"";flex:1;height:1px;background:var(--line)}
+.lead{margin:0 0 14px;font:500 21px/1.5 var(--display);letter-spacing:-.01em;color:var(--ink);text-wrap:pretty}
+.sec p{margin:0 0 14px;color:var(--muted);max-width:66ch}
+.sec p b{color:var(--ink);font-weight:600}
+.note{font-size:14.5px}
+.nums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:28px}
+.nums div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.nums b{display:block;font:700 28px/1 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.nums span{display:block;margin-top:6px;font-size:13px;color:var(--muted);line-height:1.35}
+
+/* capability rows (hover card, like engineer portfolios) */
+.rows{list-style:none;margin:0 -18px;padding:0;display:grid;gap:4px}
+.row{display:grid;grid-template-columns:136px minmax(0,1fr);gap:20px;padding:18px;border-radius:10px;border:1px solid transparent;transition:background-color 200ms var(--ease),border-color 200ms var(--ease)}
+.row:hover{background:var(--card);border-color:var(--line)}
+.row .meta b{display:block;font:700 17px/1.15 var(--display);color:var(--accent);font-variant-numeric:tabular-nums}
+.row .meta span{display:block;font:400 12px/1.4 var(--mono);color:var(--faint);margin-top:4px}
+.row h3{margin:0 0 6px;font:650 18px/1.3 var(--display);letter-spacing:-.01em}
+.row p{margin:0 0 10px;color:var(--muted);font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{font:500 12px/1 var(--mono);padding:6px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.uses{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.uses div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:6px;align-content:start;min-width:0}
+.uses h3{margin:0;font:650 16.5px/1.3 var(--display)}
+.uses p{margin:0;font-size:14.5px}
+.uses span{font:400 12px/1.5 var(--mono);color:var(--accent);margin-top:4px}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;counter-reset:s;border-top:1px solid var(--line)}
+.steps li{counter-increment:s;padding:16px 14px 0 0;display:grid;gap:4px;min-width:0}
+.steps li::before{content:"0" counter(s);font:500 12px var(--mono);color:var(--accent)}
+.steps b{font:650 16px/1.25 var(--display)}
+.steps span{font-size:13.5px;color:var(--muted);line-height:1.45}
+
+.work{display:grid;gap:4px;margin:0 -18px}
+.wk{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:200px minmax(0,1fr);gap:22px;padding:18px;border-radius:10px;border:1px solid transparent;transition:background-color 200ms var(--ease),border-color 200ms var(--ease),transform 160ms var(--ease)}
+.wk:hover{background:var(--card);border-color:var(--line)}
+.wk:active{transform:scale(.99)}
+.wk:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wk .th{position:relative;aspect-ratio:4/3;border-radius:8px;overflow:hidden;background:var(--chip);border:1px solid var(--line)}
+.wk .th img,.wk .th video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.qt{position:absolute;inset:0;display:grid;place-items:center;padding:14px;text-align:center;background:var(--accent);color:#fff;font:650 17px/1.25 var(--display)}
+.qt.big{font-size:40px;letter-spacing:-.02em}
+.wt{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.wt h3{margin:0;font:650 18px/1.3 var(--display);letter-spacing:-.01em;transition:color 150ms var(--ease)}
+.wt h3::after{content:" ↗";display:inline-block;opacity:0;transform:translate(-3px,2px);transition:opacity 200ms var(--ease),transform 200ms var(--ease)}
+.wk:hover .wt h3{color:var(--accent)}
+.wk:hover .wt h3::after,.wk:focus-visible .wt h3::after{opacity:1;transform:none}
+.wt b{font:600 13px var(--mono);color:var(--accent);white-space:nowrap}
+.wb p{margin:6px 0 10px;color:var(--muted);font-size:15px}
+
+.films{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.films figure{margin:0;min-width:0}
+.films video{display:block;width:100%;aspect-ratio:16/9;border-radius:10px;background:#000;border:1px solid var(--line)}
+.films figcaption{margin-top:10px;font-size:14px;color:var(--muted)}
+.films figcaption b{display:block;color:var(--ink);font:650 16px/1.3 var(--display);margin-bottom:2px}
+
+.kit{margin:0;display:grid;gap:0}
+.kit div{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;padding:12px 0;border-bottom:1px solid var(--line)}
+.kit dt{font:600 12px/1.7 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.kit dd{margin:0;font-size:15px}
+.fine{margin-top:18px!important;font:400 12px var(--mono)!important;color:var(--faint)!important}
+
+/* case dialog */
+dialog{border:1px solid var(--line);padding:0;background:var(--card);color:var(--ink);border-radius:14px;width:min(960px,calc(100% - 32px));max-height:calc(100% - 48px);overflow:auto;box-shadow:0 30px 80px -20px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(15,17,19,.55);backdrop-filter:blur(3px)}
+.dl{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr)}
+.dl .m{background:#000;min-height:320px;position:relative}
+.dl .m img,.dl .m video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dl .m .qt{font-size:28px;padding:28px}
+.dl .i{padding:28px 30px 30px;display:grid;gap:16px;align-content:start}
+.dl h3{margin:0;font:700 30px/1.08 var(--display);letter-spacing:-.02em}
+.dl .what{margin:0;font-size:16px;color:var(--muted)}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:8px 0;font:500 12px/1.3 var(--mono)}
+.chain span{padding:7px 10px;border-radius:8px;background:var(--chip);border:1px solid var(--line)}
+.chain span small{display:block;color:var(--accent);font-size:10.5px;margin-top:2px}
+.chain span.io{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chain span.io small{color:var(--faint)}
+.chain i{font-style:normal;color:var(--faint);padding:0 6px}
+.res{display:flex;flex-wrap:wrap;gap:22px;border-top:1px solid var(--line);padding-top:16px}
+.res div{max-width:190px}
+.res b{display:block;font:700 28px/1 var(--display);letter-spacing:-.02em;color:var(--accent);font-variant-numeric:tabular-nums}
+.res span{display:block;font-size:13px;color:var(--muted);margin-top:5px;line-height:1.4}
+.eng{margin:0;font-size:14.5px;color:var(--muted)}
+.eng b{color:var(--ink);font-weight:600}
+.status{display:flex;gap:8px;flex-wrap:wrap}
+.status span{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:6px 9px;border-radius:999px;background:var(--chip);color:var(--muted)}
+.status span.live{background:var(--accent-soft);color:var(--accent)}
+.close{position:sticky;top:12px;float:right;margin:12px 12px -52px 0;z-index:5;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(15,17,19,.6);color:#fff;font-size:20px;cursor:pointer}
+
+/* motion: production-polish lens */
+@keyframes enter{from{opacity:0;transform:translateY(8px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+@keyframes leave{to{opacity:0;transform:translateY(-12px);filter:blur(4px)}}
+@keyframes fade{from{opacity:0}}
+.in{animation:enter 520ms var(--ease) backwards;animation-delay:calc(var(--d,0) * 80ms)}
+dialog[open]{animation:enter 450ms var(--ease)}
+dialog[open]::backdrop{animation:fade 200ms var(--ease)}
+dialog.closing{animation:leave 180ms var(--ease) forwards}
+dialog.closing::backdrop{animation:fade 180ms var(--ease) reverse forwards}
+
+@media (max-width:1000px){
+  .layout{grid-template-columns:1fr;gap:0}
+  .side{position:static;height:auto;padding-block:56px 8px;gap:24px}
+  .toc{display:none}
+  .sidefoot{margin-top:0}
+  .main{padding-top:40px}
+  .steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:18px}
+}
+@media (max-width:640px){
+  .layout{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .side h1{font-size:38px}
+  .nums{grid-template-columns:1fr 1fr}
+  .row{grid-template-columns:1fr;gap:8px}
+  .rows,.work{margin:0}
+  .row,.wk{padding:14px 0}
+  .row:hover,.wk:hover{background:none;border-color:transparent}
+  .wk{grid-template-columns:1fr;gap:12px}
+  .uses,.films{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .kit div{grid-template-columns:1fr;gap:2px}
+  .dl{grid-template-columns:1fr}
+  .dl .m{min-height:0;aspect-ratio:4/3}
+  .dl .i{padding:20px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+<aside class="side">
+  <div class="in" style="--d:0">
+    <h1>Seth Dresbeck</h1>
+    <p class="role">AI Workflow Designer</p>
+    <p class="pitch">I turn AI models into products and workflows that ship, measured and in production.</p>
+  </div>
+  <nav class="toc in" style="--d:1" aria-label="Sections">
+    <a href="#about" class="on"><i></i>About</a>
+    <a href="#capabilities"><i></i>Capabilities</a>
+    <a href="#applies"><i></i>Use cases</a>
+    <a href="#process"><i></i>Process</a>
+    <a href="#work"><i></i>Selected work</a>
+    <a href="#films"><i></i>Films</a>
+    <a href="#toolkit"><i></i>Toolkit</a>
+  </nav>
+  <div class="sidefoot in" style="--d:2">
+    <div class="contact"><a href="mailto:sdresbeck@gmail.com">sdresbeck@gmail.com</a> · <a href="https://www.linkedin.com/in/seth-dresbeck/" target="_blank" rel="noopener">LinkedIn</a></div>
+    <div class="stack">Next.js · .NET 10 · Python · AWS</div>
+    <div class="stack">Claude · Gemini · OpenAI · ElevenLabs · Kling</div>
+  </div>
+</aside>
+
+<main class="main">
+<section id="about" class="sec in" style="--d:1">
+  <h2 class="mh">About</h2>
+  <p class="lead">I design, build and run multi model AI systems from end to end. I choose models by benchmark, chain them into reliable pipelines, score every output automatically, and ship to real users with tests, guardrails and known costs.</p>
+  <p>Most recently I designed and built <b>MyFamilyStory</b>, a consumer web app with 16 AI products. They turn old family photos and records into restored portraits, narrated videos, researched historical scenes, custom voices and live conversations. I built the pipelines, the front end, the backend jobs, the release process and the product films.</p>
+  <p>Before that, I built an <b>AI calling system</b> on my own that replaced a manual cold caller at a real estate company, calling every new lead in under a minute.</p>
+  <div class="nums">
+    <div><b>40+</b><span>models benchmarked</span></div>
+    <div><b>16</b><span>AI products in production</span></div>
+    <div><b>12×</b><span>faster video rendering</span></div>
+    <div><b>2,700+</b><span>tests per release</span></div>
+  </div>
+</section>
+
+<section id="capabilities" class="sec">
+  <h2 class="mh">Capabilities</h2>
+  <ol class="rows">
+    <li class="row"><div class="meta"><b>5 models</b><span>in one flow</span></div><div class="body"><h3>Multi model AI pipelines</h3><p>I chain language, image, video and voice models into one reliable flow, with retries, fallbacks and timeouts, plus a backup request that races a slow model.</p><div class="chips"><span>Claude</span><span>ElevenLabs</span><span>HeyGen</span><span>Kling</span><span>ffmpeg</span></div></div></li>
+    <li class="row"><div class="meta"><b>40+</b><span>models compared</span></div><div class="body"><h3>Model evaluation and selection</h3><p>I race candidate models on real inputs for quality, failure rate, speed and cost, then make a clear recommendation, including when to stay put.</p><div class="chips"><span>12 video models</span><span>28 model image matrix</span><span>review pages</span></div></div></li>
+    <li class="row"><div class="meta"><b>0.20 → 0.47</b><span>likeness gain</span></div><div class="body"><h3>Automated quality and guardrails</h3><p>Automatic judges score every result before a person sees it, and code guards block what must never happen, such as invented names, dates or events.</p><div class="chips"><span>ArcFace</span><span>vision grading</span><span>best of N</span><span>code guards</span></div></div></li>
+    <li class="row"><div class="meta"><b>32/32</b><span>ambiguities resolved</span></div><div class="body"><h3>LLM agents and research workflows</h3><p>Multi step agents research, plan, fact check and grade their own output, with each step on the model tier it needs and caching, rate limits and kill switches around them.</p><div class="chips"><span>Claude Opus</span><span>Sonnet</span><span>Haiku</span><span>S3 cache</span></div></div></li>
+    <li class="row"><div class="meta"><b>96</b><span>custom voices</span></div><div class="body"><h3>Voice and real time conversation</h3><p>I do voice design at catalog scale and build real time voice agents with memory across sessions, live video avatars, and automated voice QA.</p><div class="chips"><span>ElevenLabs v4</span><span>GPT-Live-1</span><span>Anam</span><span>Pipecat + Twilio</span><span>Vapi</span></div></div></li>
+    <li class="row"><div class="meta"><b>77.9 → 6.6 s</b><span>render time</span></div><div class="body"><h3>Cost and performance engineering</h3><p>I measure the real cost per job from production code and live prices, find the money losers, and cut slow steps without lowering quality.</p><div class="chips"><span>unit economics</span><span>ffmpeg</span><span>memory profiling</span><span>SQS offload</span></div></div></li>
+    <li class="row"><div class="meta"><b>12 in 2 days</b><span>to production</span></div><div class="body"><h3>Prototype to production</h3><p>I take an idea from a Python prototype to a production feature: backend jobs, APIs, front end, pricing, feature flags and staged release.</p><div class="chips"><span>.NET 10</span><span>Next.js</span><span>Postgres</span><span>feature flags</span></div></div></li>
+    <li class="row"><div class="meta"><b>4.5 → 7.0</b><span>QA score</span></div><div class="body"><h3>Agentic engineering and QA automation</h3><p>I run AI coding agents as a team with review gates, and I test the product with "harsh first time user" agents and a full rehearsal copy of production.</p><div class="chips"><span>Claude Code</span><span>Playwright</span><span>rehearsal env</span></div></div></li>
+    <li class="row"><div class="meta"><b>83 s + 87 s</b><span>films in code</span></div><div class="body"><h3>Generative media and motion</h3><p>I make product films in code from frame exact captures of the live app, with music and sound generated in code.</p><div class="chips"><span>Remotion</span><span>60 fps capture</span><span>−16 LUFS</span></div></div></li>
+  </ol>
+</section>
+
+<section id="applies" class="sec">
+  <h2 class="mh">Use cases</h2>
+  <p class="note">The same patterns carry over to other industries.</p>
+  <div class="uses">
+    <div><h3>Product imagery at scale</h3><p>On brand product images, each scored for accuracy before it's published.</p><span>Pattern: photo restoration + likeness scoring</span></div>
+    <div><h3>Voice agents and support</h3><p>Real time voice assistants that remember the customer and write up every call.</p><span>Pattern: AI interviewer with memory</span></div>
+    <div><h3>Narration and localization</h3><p>Scripts adapted, voiced in a matched voice, lip synced and rendered to video.</p><span>Pattern: narrated video pipeline</span></div>
+    <div><h3>Research and fact checked content</h3><p>Agents that research, draft, fact check and grade their output before a person sees it.</p><span>Pattern: historical research agents</span></div>
+    <div><h3>AI cost control</h3><p>The cost of every AI feature per use, the money losers found, and costs cut while quality holds.</p><span>Pattern: unit economics report</span></div>
+    <div><h3>AI assisted engineering</h3><p>Coding agents working in parallel, with QA agents and rehearsal so releases stay safe.</p><span>Pattern: 12 products migrated in 2 days</span></div>
+  </div>
+</section>
+
+<section id="process" class="sec">
+  <h2 class="mh">Process</h2>
+  <ol class="steps">
+    <li><b>Benchmark</b><span>Race models on real inputs.</span></li>
+    <li><b>Prototype</b><span>A working flow in days, with review pages.</span></li>
+    <li><b>Measure</b><span>Every output scored automatically.</span></li>
+    <li><b>Productionize</b><span>Jobs, front end, guardrails, then rehearsal.</span></li>
+    <li><b>Ship and watch</b><span>Staged release, one step undo, cost tracking.</span></li>
+  </ol>
+</section>
+
+<section id="work" class="sec">
+  <h2 class="mh">Selected work</h2>
+  <p class="note">From MyFamilyStory, plus the AI calling system I built at Simple Sell Home Buyers. Every image and clip is a real output. Select a project to see its pipeline and results.</p>
+  <div class="work">
+    <button class="wk" type="button" data-c="story"><div class="th"><video autoplay muted loop playsinline preload="metadata" src="media/story.mp4" poster="media/bring_their_story_to_life_src_1.jpg"></video></div><div class="wb"><div class="wt"><h3>Narrated life story video</h3><b>12× faster</b></div><p>A photo tells its own life story in a matched voice. Five models in one pipeline.</p><div class="chips"><span>Claude</span><span>ElevenLabs</span><span>HeyGen</span><span>Kling</span></div></div></button>
+    <button class="wk" type="button" data-c="calling"><div class="th"><div class="qt big">&lt;1 min</div></div><div class="wb"><div class="wt"><h3>AI calling system</h3><b>5% spotted the AI</b></div><p>Inbound and outbound voice agents that call every new lead in under a minute, qualify them, book the appointment and log the call. Built solo.</p><div class="chips"><span>Vapi</span><span>Twilio</span><span>ElevenLabs</span><span>GoHighLevel</span><span>Make</span></div></div></button>
+    <button class="wk" type="button" data-c="world"><div class="th"><img src="media/world_frieda.jpg" alt=""></div><div class="wb"><div class="wt"><h3>Historical research agents</h3><b>14/15 pass</b></div><p>Agents research a town and decade, fact check the era, render the scene and grade it.</p><div class="chips"><span>Sonnet 5</span><span>Opus 5.5</span><span>gpt-image-2.5</span></div></div></button>
+    <button class="wk" type="button" data-c="restore"><div class="th"><img src="media/bring_it_back_2.jpg" alt="" style="object-position:50% 22%"></div><div class="wb"><div class="wt"><h3>Photo restoration at 4K</h3><b>~50¢ a set</b></div><p>Any old photo, even a 131 px scan, comes back restored, colorized and scored for likeness.</p><div class="chips"><span>gpt-image-2.5</span><span>Nano Banana 2.1</span><span>ArcFace</span></div></div></button>
+    <button class="wk" type="button" data-c="interview"><div class="th"><div class="qt">“Where did you grow up?”</div></div><div class="wb"><div class="wt"><h3>AI life story interviewer</h3><b>7 s to chapter</b></div><p>A real time voice interviewer with memory across sessions that writes each conversation up as a chapter.</p><div class="chips"><span>GPT-Live-1</span><span>Sonnet 5.5</span><span>Postgres</span></div></div></button>
+    <button class="wk" type="button" data-c="composite"><div class="th"><img src="media/composite_rachel.jpg" alt="" style="object-position:50% 20%"></div><div class="wb"><div class="wt"><h3>Imagined relatives</h3><b>0.20 → 0.47</b></div><p>A face for an ancestor with no photo, built from the family's faces and measured against the real parents.</p><div class="chips"><span>gpt-image-2.5</span><span>Nano Banana 2.1</span><span>ArcFace</span></div></div></button>
+    <button class="wk" type="button" data-c="animate"><div class="th"><video autoplay muted loop playsinline preload="metadata" src="media/animate.mp4" poster="media/their_world_3.jpg"></video></div><div class="wb"><div class="wt"><h3>Animated scenes with sound</h3><b>−16 LUFS</b></div><p>Image to video, with the muddy model audio replaced by a generated, mastered soundscape.</p><div class="chips"><span>Seedance 2.5</span><span>Haiku</span><span>ElevenLabs SFX</span></div></div></button>
+    <button class="wk" type="button" data-c="voices"><div class="th"><div class="qt big">96</div></div><div class="wb"><div class="wt"><h3>Custom voice library</h3><b>96/96 live</b></div><p>Voices across US and UK, three ages and eight styles, checked automatically and by blind listening.</p><div class="chips"><span>ElevenLabs v4</span><span>Audiobox</span><span>audEERING</span></div></div></button>
+    <button class="wk" type="button" data-c="web"><div class="th"><img src="media/poster-tour.jpg" alt=""></div><div class="wb"><div class="wt"><h3>The web app</h3><b>103 pages</b></div><p>Family map, tree, profiles and onboarding for users 50 and over, with face framing in the browser.</p><div class="chips"><span>Next.js</span><span>Leaflet</span><span>MediaPipe</span></div></div></button>
+    <button class="wk" type="button" data-c="platform"><div class="th"><div class="qt big">2,700+</div></div><div class="wb"><div class="wt"><h3>Platform engineering</h3><b>12 in 2 days</b></div><p>Rehearsal environment, QA agents, model benchmarks and a unit economics report.</p><div class="chips"><span>.NET 10</span><span>Playwright</span><span>Claude Code</span></div></div></button>
+  </div>
+</section>
+
+<section id="films" class="sec">
+  <h2 class="mh">Films</h2>
+  <div class="films">
+    <figure><video controls preload="none" playsinline poster="media/poster-keepsakes.jpg" src="media/keepsakes-film.mp4"></video><figcaption><b>What you can make · 83 s</b>Real product outputs only. The narration was revoiced with lip sync kept within 15 ms. Running on the live site.</figcaption></figure>
+    <figure><video controls preload="none" playsinline poster="media/poster-tour.jpg" src="media/site-tour.mp4"></video><figcaption><b>Product tour · 87 s</b>One 60 fps take of the live app with a 3D camera, click zooms and motion blur, all made in Remotion.</figcaption></figure>
+  </div>
+</section>
+
+<section id="toolkit" class="sec">
+  <h2 class="mh">Toolkit</h2>
+  <dl class="kit">
+    <div><dt>Language</dt><dd>Claude Opus 5.5, Sonnet 5.5, Haiku 5.5, Gemini 3.6</dd></div>
+    <div><dt>Image</dt><dd>gpt-image-2.5, Nano Banana 2.1, FLUX 3, Seedream, MAI-Image</dd></div>
+    <div><dt>Video</dt><dd>Kling v3, Seedance 2.5, Veo 3.1, Gemini Omni, HeyGen, Anam</dd></div>
+    <div><dt>Voice</dt><dd>ElevenLabs v4, GPT-Live-1, Fish, Inworld, Deepgram, Pipecat + Twilio</dd></div>
+    <div><dt>Vision</dt><dd>ArcFace, SCRFD, GFPGAN, YuNet, MediaPipe, ONNX Runtime</dd></div>
+    <div><dt>Engineering</dt><dd>Next.js, React, .NET 10, Python, PostgreSQL, ffmpeg, Remotion, Playwright, AWS S3 + SQS, Jenkins, Claude Code agents</dd></div>
+  </dl>
+  <p class="fine">Figures are from production and test runs in 2026.</p>
+</section>
+</main>
+</div>
+<dialog id="case" aria-label="Case study"><button class="close" type="button" aria-label="Close">×</button><div class="dl"><div class="m" id="cm"></div><div class="i" id="ci"></div></div></dialog>
+
+<script>
+var C={
+calling:{m:'<div class="qt big">&lt;1 min</div>',s:'Shipped',t:'AI calling system',w:'Built solo at Simple Sell Home Buyers to replace a manual cold caller. Every lead from a Google Ads form gets a natural sounding call in under a minute, and every outcome lands in the CRM without anyone typing it in.',c:['Ad lead','Clean + route|Zapier','CRM|GoHighLevel','Trigger call|Make','Voice agent|Vapi + Twilio + ElevenLabs','Booked appointment'],r:[['&lt;1 min','form to first call'],['100+','inbound calls a month'],['5%','of callers flagged it as AI'],['23%','lower cost per lead than industry benchmark']],e:'Tool calls book the appointment and write the transcript, summary and lead status back to the CRM. An inbound agent picks up from the caller\u2019s earlier conversations, and leads who miss the call get automated follow up over several days. I tuned latency, turn taking, interruptions and pronunciation against real call recordings until it sounded like a person, not a script.'},
+restore:{m:'<img src="media/bring_it_back_2.jpg" alt="" style="object-position:50% 22%">',s:'Live',t:'Photo restoration',w:'Any old photograph, even a tiny scan, a tintype or a painting, comes back restored, colorized and in four new portrait versions at 4K. It is the free first result for every new user.',c:['Old photo','Repair + color|gpt-image-2.5','4 versions|Nano Banana 2.1','Likeness check|face recognition','6 images at 4K'],r:[['~50¢','AI cost per set of six'],['~90 s','upload to results'],['0.47','avg face match, 49 real uploads']],e:'Chose the model chain by scoring face likeness on real uploads. Measuring showed the color step was where faces drifted most, which human review had missed.'},
+story:{m:'<video autoplay muted loop playsinline src="media/story.mp4"></video>',s:'Live',t:'Narrated life story video',w:'An ancestor’s photo tells their own life story out loud, in a matched voice, written from the family’s records.',c:['Photo + records','Script|Claude','Period rewrite|Claude Opus 5.5','Narration|ElevenLabs','Talking portrait|HeyGen','Transition|Kling v3','Finished video'],r:[['12×','faster final render (77.9 s → 6.6 s)'],['20 → 7 min','wait time for users'],['−25%','video cost per clip']],e:'Merged four video encodes into one ffmpeg pass with no visible change. If the slowest model hasn’t returned in 5 minutes, a second request races it. The period rewrite has code guards that reject any invented name, date or event.'},
+world:{m:'<img src="media/world_frieda.jpg" alt="">',s:'Live',t:'Historical worlds',w:'Six scenes of the town where an ancestor lived, as it looked in their decade, each with its own soundscape.',c:['Place + decade','Resolve place|Claude Sonnet 5','Plan views|Claude Sonnet 5','Period fact check|Claude Opus 5.5','Render|gpt-image-2.5','Grade + retry|Claude Sonnet 5.5','6 scenes + sound'],r:[['14/15','pass the quality check (was 9/15)'],['32/32','ambiguous places resolved']],e:'An AI fact checker blocks details from the wrong era, and a vision model grades every image before anyone sees it. Results are cached per town and decade. “Carlsbad, 1945” now asks California or Czech Republic.'},
+animate:{m:'<video autoplay muted loop playsinline src="media/animate.mp4"></video>',s:'Live',t:'Animated scenes',w:'A historical scene comes alive as a short video, with the camera moving in and a layered soundscape.',c:['Scene image','Image to video|Seedance 2.5','Describe sound|Claude Haiku','Ambience|ElevenLabs SFX','Mix + master|ffmpeg','Video with sound'],r:[['−16 LUFS','broadcast loudness (was −27 to −31)'],['3','sound designs in a blind test']],e:'Measured why the model’s own audio sounded muddy (32 kHz, near mono, nothing above 6 kHz) and replaced it with a generated, mastered ambience.'},
+composite:{m:'<img src="media/composite_rachel.jpg" alt="" style="object-position:50% 20%">',s:'Live',t:'Imagined relatives',w:'For an ancestor who was never photographed, the app imagines a face from the faces of their parents and siblings.',c:['Family photos','Draw|gpt-image-2.5','Refine at 2K|Nano Banana 2.1','Score vs parents|face recognition','Portrait'],r:[['0.20 → 0.47','resemblance to the real parents'],['0.70','best result'],['~50¢','per portrait']],e:'Each imagined sibling inherits a different set of features (eyes, nose, face shape, mouth), so they read as family without looking cloned.'},
+era:{m:'<img src="media/era_portrait_1.jpg" alt="" style="object-position:50% 30%">',s:'Live',t:'Scenes from their life',w:'A period accurate photograph of the ancestor doing what their records say they did.',c:['Portrait + life story','Pick the moment|Claude','Render in period|Nano Banana 2.1','Small face redo|automatic','Photo'],r:[['0.36 → 0.41','face match'],['5/16 → 1/16','faces too small'],['17¢','per image, 33 s']],e:''},
+web:{m:'<video autoplay muted loop playsinline src="media/site-tour.mp4"></video>',s:'Live',t:'The web app',w:'The consumer web app, built for users 50 and over: an interactive family map, a family tree, a profile for each person, onboarding, and one creation flow shared by all 16 AI products.',c:['Family map|Leaflet','Tree + profiles|React','Onboarding|6 free results','Creation flow|shared components','Library'],r:[['103','pages and ~250 popups mapped'],['3/3','onboarding rehearsals passed'],['250 KB','in browser face model']],e:'Uploaded portraits frame themselves around the head (MediaPipe, in the browser). The scroll driven landing page dives from a globe into a talking portrait, and I fixed an iOS bug where the toolbar resizing threw it off. Every release is checked by an automated “harsh first time user” QA agent.'},
+interview:{m:'<div class="qt">“Where did you grow up, and what did your street sound like?”</div>',s:'Live for admins',t:'AI life story interviewer',w:'A voice interviewer that talks with you in real time, remembers earlier sessions and turns each conversation into a chapter of your memoir.',c:['Your voice','Live interview|GPT-Live-1','Memory|Postgres','Write chapter|Claude Sonnet 5.5','Chapter in your book'],r:[['7 s','to write a chapter'],['4.5 → 7.0','usability score after one fix round']],e:'Audio goes straight from the browser to the voice model on a short lived key, so there’s no audio server to scale. Chapters are written by a background worker. Speak or type, and switch between them at any time.'},
+call:{m:'<img src="media/enhanced_ethel.jpg" alt="" style="object-position:50% 20%">',s:'Live',t:'Live video calls',w:'A face to face call with an ancestor’s portrait, in real time. It answers from what the family’s records say, in a voice chosen for them.',c:['Portrait + records','Real time avatar|Anam','Voice|ElevenLabs','Answers from records|LLM','Live call'],r:[['96/96','voices in the avatar platform'],['$0.14','cost per minute']],e:''},
+voices:{m:'<div class="qt" style="font-size:96px">96</div>',s:'Live',t:'Custom voice library',w:'96 distinct voices (US and UK, three ages, men and women, eight styles), so each ancestor can sound their age, region and character.',c:['Voice brief','Design + clone|ElevenLabs','Cleanup|Adobe Enhance','Quality + age check|Audiobox, audEERING','Sync|DB, avatars, CDN','Voice picker'],r:[['96/96','live in one release'],['56 to 77 → 78 to 86','heard age of older voices']],e:'Benchmarked 7 voice engines. Automated scoring catches muffled audio and voices that sound the wrong age, and final picks were made on blind listening pages.'},
+stylized:{m:'<img src="media/bring_it_back_stylized_1.jpg" alt="" style="object-position:50% 25%">',s:'Live',t:'Stylized portraits',w:'Four artistic looks of the same person, each ranked by face match before it’s shown.',c:['Restored portrait','4 styles|Nano Banana 2.1','Best of N|face recognition','4 portraits'],r:[['~$0.49','per set at 4K']],e:''},
+together:{m:'<img src="media/together_in_one_portrait_1.jpg" alt="">',s:'Live',t:'Two photos, one portrait',w:'Two people from separate photographs, placed together in one natural portrait.',c:['Two photos','Compose|gpt-image-2.5','Finish|Nano Banana 2.1','One portrait'],r:[],e:''},
+platform:{m:'<div class="qt" style="font-size:72px">2,700+</div>',s:'Engineering',t:'Platform engineering',w:'The systems that let 16 AI products ship safely: production rehearsal, QA agents, model benchmarks, likeness scoring and unit economics.',c:['Benchmark models','Score by machine','Rehearse end to end','QA agent','Staged release'],r:[['12 in 2 days','prototypes moved to the .NET backend'],['2,700+','tests per release'],['2','money losing products found by cost report']],e:'Rehearsal is a full local copy of the product with stand in AI services and injected failures. The cost report reads each product’s models from production code and joins live prices. Licences are checked too: a non commercial face model was caught before launch.'}
+};
+var dlg=document.getElementById('case'),cm=document.getElementById('cm'),ci=document.getElementById('ci');
+function chain(a){return '<div class="chain">'+a.map(function(x,i){var p=x.split('|'),io=(i===0||i===a.length-1)&&!p[1];return (i?'<i>→</i>':'')+'<span'+(io?' class="io"':'')+'>'+p[0]+(p[1]?'<small>'+p[1]+'</small>':'')+'</span>'}).join('')+'</div>'}
+function open(k){var d=C[k];if(!d)return;cm.innerHTML=d.m;
+  ci.innerHTML='<div class="status"><span class="'+(d.s==='Live'?'live':'')+'">'+d.s+'</span></div><h3>'+d.t+'</h3><p class="what">'+d.w+'</p>'+chain(d.c)+(d.r.length?'<div class="res">'+d.r.map(function(r){return '<div><b>'+r[0]+'</b><span>'+r[1]+'</span></div>'}).join('')+'</div>':'')+(d.e?'<p class="eng"><b>Engineering:</b> '+d.e+'</p>':'');
+  if(dlg.showModal){dlg.showModal()}else{dlg.setAttribute('open','')}}
+
+function shut(){if(!dlg.open)return;var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;if(rm||!dlg.close){dlg.close?dlg.close():dlg.removeAttribute('open');return}dlg.classList.add('closing');setTimeout(function(){dlg.classList.remove('closing');dlg.close()},170)}
+dlg.addEventListener('cancel',function(e){e.preventDefault();shut()});
+dlg.querySelector('.close').addEventListener('click',shut);
+dlg.addEventListener('click',function(e){if(e.target===dlg)shut()});
+dlg.addEventListener('close',function(){cm.innerHTML=''});
+
+
+if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){document.querySelectorAll('video[loop]').forEach(function(v){v.removeAttribute('autoplay');try{v.pause()}catch(e){}})}
+document.querySelectorAll('.wk').forEach(function(t){t.addEventListener('click',function(){open(t.dataset.c)})});
+(function(){var links=[].slice.call(document.querySelectorAll('.toc a'));if(!('IntersectionObserver' in window))return;
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){links.forEach(function(l){l.classList.toggle('on',l.getAttribute('href')==='#'+e.target.id)})}})},{rootMargin:'-30% 0px -60% 0px'});
+document.querySelectorAll('.main section[id]').forEach(function(s){io.observe(s)})})();
+</script>
+
+</body>
+</html>
